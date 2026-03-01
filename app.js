@@ -1258,6 +1258,14 @@ class AssetFlowApp {
                 let currentUrl = window.location.href.split('?')[0].split('#')[0];
                 let portalBase = settings.publicUrl ? settings.publicUrl.trim().replace(/\/$/, '').replace(/\/index\.html$/i, '').replace(/\/portal\.html$/i, '') : '';
 
+                try {
+                    if (portalBase && (portalBase.includes('localhost') || portalBase.includes('127.0.0.1'))) {
+                        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                            portalBase = '';
+                        }
+                    }
+                } catch (e) { }
+
                 if (portalBase) {
                     currentUrl = `${portalBase}/portal.html`;
                 } else {

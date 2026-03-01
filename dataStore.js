@@ -40,6 +40,16 @@ class DataStore {
     getApiUrl(endpoint) {
         const settings = this.data.settings || {};
         let base = settings.publicUrl ? settings.publicUrl.trim().replace(/\/$/, '') : '';
+
+        // If public URL is a local loopback but we are accessing from a network IP, ignore it and use relative
+        try {
+            if (base && (base.includes('localhost') || base.includes('127.0.0.1'))) {
+                if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                    base = '';
+                }
+            }
+        } catch (e) { }
+
         // If there is no public URL, assume we are hosting this directory and use relative path
         return base ? `${base}${endpoint}` : endpoint;
     }

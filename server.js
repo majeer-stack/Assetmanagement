@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -61,5 +62,22 @@ app.get('/api/health', (req, res) => {
 // Start Server
 app.listen(PORT, () => {
     console.log(`AssetFlow Server running on http://localhost:${PORT}`);
+
+    // Print local network IP addresses
+    const interfaces = os.networkInterfaces();
+    let networkIps = [];
+    for (const name of Object.keys(interfaces)) {
+        for (const iface of interfaces[name]) {
+            if (iface.family === 'IPv4' && !iface.internal) {
+                networkIps.push(iface.address);
+            }
+        }
+    }
+
+    if (networkIps.length > 0) {
+        console.log(`For access from other devices, use:`);
+        networkIps.forEach(ip => console.log(`  http://${ip}:${PORT}`));
+    }
+
     console.log(`Serving API and static files from ${__dirname}`);
 });
