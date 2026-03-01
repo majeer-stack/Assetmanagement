@@ -32,14 +32,18 @@ class DataStore {
             inventoryChecks: [],
             emailLogs: [],
             loginLogs: [],
-            settings: { webhookUrl: '', webhookAuth: '', publicUrl: '', orgName: 'AssetFlow', orgLogo: null, logoWidth: '40px', logoHeight: 'auto', storageMode: 'local', localPath: '' }
+            loginLogs: [],
+            settings: { webhookUrl: '', webhookAuth: '', publicUrl: 'https://assetflow-07rd.onrender.com', orgName: 'AssetFlow', orgLogo: null, logoWidth: '40px', logoHeight: 'auto', storageMode: 'local', localPath: '' }
         };
     }
 
     // Helper to get absolute API URL
     getApiUrl(endpoint) {
         const settings = this.data.settings || {};
-        let base = settings.publicUrl ? settings.publicUrl.trim().replace(/\/$/, '') : '';
+
+        // Use user's configured URL if exists, otherwise default to the Render backend unconditionally
+        // so that the GitHub Pages frontend always knows where the database is
+        let base = settings.publicUrl ? settings.publicUrl.trim().replace(/\/$/, '') : 'https://assetflow-07rd.onrender.com';
 
         // If public URL is a local loopback but we are accessing from a network IP, ignore it and use relative
         try {
@@ -50,7 +54,6 @@ class DataStore {
             }
         } catch (e) { }
 
-        // If there is no public URL, assume we are hosting this directory and use relative path
         return base ? `${base}${endpoint}` : endpoint;
     }
 

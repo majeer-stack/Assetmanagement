@@ -1254,9 +1254,10 @@ class AssetFlowApp {
                 const assetListStr = userAssets.map(a => `- ${a.type} ${a.model} (Tag: ${a.tag})`).join('\n');
 
                 // Construct magic link for Custodian Portal
-                // Use Public Portal URL if configured
+                // Default to GitHub Pages domain if no public URL is defined, so magic links always work globally
                 let currentUrl = window.location.href.split('?')[0].split('#')[0];
-                let portalBase = settings.publicUrl ? settings.publicUrl.trim().replace(/\/$/, '').replace(/\/index\.html$/i, '').replace(/\/portal\.html$/i, '') : '';
+                let publicSetting = settings.publicUrl ? settings.publicUrl.trim().replace(/\/$/, '').replace(/\/index\.html$/i, '').replace(/\/portal\.html$/i, '') : 'https://majeer-stack.github.io/Assetmanagement';
+                let portalBase = publicSetting;
 
                 try {
                     if (portalBase && (portalBase.includes('localhost') || portalBase.includes('127.0.0.1'))) {
