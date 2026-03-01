@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Asset Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Printable Header & Footer (Hidden on Web) -->
+    <div id="print-header" class="print-only">
+        <h1 id="print-org-name">Organization Name</h1>
+        <h2>IT Asset Management Report</h2>
+    </div>
+    <div id="print-footer" class="print-only">
+        <p>IT Department - Generated on <span id="print-date"></span></p>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-container" class="app-container"
+        style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+        <div class="glass-panel" style="max-width: 400px; width: 100%; padding: 40px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <i class="fas fa-network-wired" id="login-org-icon"
+                    style="font-size: 48px; color: var(--primary); margin-bottom: 15px;"></i>
+                <img id="login-org-logo" src=""
+                    style="width:64px; height:64px; border-radius:8px; object-fit:cover; display:none; margin: 0 auto 15px auto;">
+                <h2 id="login-org-name">Welcome to AssetFlow</h2>
+                <p style="color: var(--text-muted); margin-top: 5px;">Please sign in to continue</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="login-email" required placeholder="admin@local">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" required placeholder="admin">
+                </div>
+                <div style="text-align: right; margin-top: -10px; margin-bottom: 15px;">
+                    <a href="#" onclick="window.app.openModal('forgot-password-modal')"
+                        style="color: var(--primary); text-decoration: none; font-size: 14px;">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; margin-top: 10px; font-size: 16px; padding: 12px;">Sign In</button>
+            </form>
+            <div id="login-error" style="color: var(--danger); text-align: center; margin-top: 15px; display: none;">
+                Invalid email or password.</div>
+        </div>
+    </div>
+
+
+    <!-- Main Application -->
+    <div id="app-container" class="app-container" style="display: none;">
+        <!-- Sidebar -->
+        <aside class="sidebar glass-panel">
+            <div class="logo">
+                <i class="fas fa-network-wired" id="sidebar-org-icon"></i>
+                <img id="sidebar-org-logo" src=""
+                    style="width:32px; height:32px; flex-shrink: 0; border-radius:4px; object-fit:cover; display:none;">
+                <h2 id="sidebar-org-name">AssetFlow</h2>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" data-target="dashboard-view"><i class="fas fa-chart-pie"></i>
+                    Dashboard</button>
+                <button class="nav-item" data-target="departments-view"><i class="fas fa-building"></i>
+                    Departments</button>
+                <button class="nav-item" data-target="users-view"><i class="fas fa-users"></i> Users</button>
+                <button class="nav-item" data-target="assets-view"><i class="fas fa-laptop"></i> IT Assets</button>
+                <button class="nav-item" data-target="consumables-view"><i class="fas fa-tint"></i> Consumables</button>
+                <button class="nav-item" data-target="reports-view"><i class="fas fa-file-alt"></i> Reports</button>
+                <button class="nav-item" data-target="settings-view"><i class="fas fa-cog"></i> Settings</button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar glass-panel">
+                <h1 id="page-title">Dashboard</h1>
+                <div class="user-profile">
+                    <div class="avatar" id="nav-avatar">A</div>
+                    <span id="nav-username">Admin</span>
+                    <button id="logout-btn" class="btn btn-sm btn-secondary" style="margin-left: 15px;"
+                        onclick="window.app.handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Views will be toggled here -->
+                <section id="dashboard-view" class="view active">
+                    <div class="stats-grid">
+                        <div class="stat-card glass-panel">
+                            <i class="fas fa-laptop stat-icon"></i>
+                            <div class="stat-info">
+                                <h3>Total Assets</h3>
+                                <p id="stat-total-assets">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-panel">
+                            <i class="fas fa-users stat-icon"></i>
+                            <div class="stat-info">
+                                <h3>Active Users</h3>
+                                <p id="stat-total-users">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-panel">
+                            <i class="fas fa-building stat-icon"></i>
+                            <div class="stat-info">
+                                <h3>Departments</h3>
+                                <p id="stat-total-departments">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-panel">
+                            <i class="fas fa-exclamation-triangle stat-icon warning"></i>
+                            <div class="stat-info">
+                                <h3>Low Stock Items</h3>
+                                <p id="stat-low-stock">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-tables glass-panel">
+                        <h3>Recent Assignments</h3>
+                        <table class="data-table" id="recent-assignments-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>User</th>
+                                    <th>Item Type</th>
+                                    <th>Item Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="departments-view" class="view">
+                    <div class="view-header">
+                        <h2>Manage Departments</h2>
+                        <button class="btn btn-primary" onclick="window.app.openModal('department-modal')"><i
+                                class="fas fa-plus"></i> Add Department</button>
+                    </div>
+                    <div class="glass-panel">
+                        <table class="data-table" id="departments-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Users Count</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="users-view" class="view">
+                    <div class="view-header">
+                        <h2>Manage Users</h2>
+                    </div>
+                    <div class="search-filter-bar"
+                        style="display: flex; gap: 15px; margin-bottom: 15px; align-items: stretch;">
+                        <div style="position: relative; flex: 1; display:flex;">
+                            <input type="text" id="search-users" class="search-input"
+                                placeholder="Search by name, email, or emp ID..."
+                                style="flex: 1; padding: 10px; padding-right: 35px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-main);">
+                            <button id="clear-search-users"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-muted); cursor: pointer;"><i
+                                    class="fas fa-times"></i></button>
+                        </div>
+                        <select id="filter-users-dept" class="filter-select"
+                            style="padding: 10px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-main); width: 200px;">
+                            <option value="">All Departments</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="window.app.openModal('user-modal')"><i
+                                class="fas fa-plus"></i> Add User</button>
+                    </div>
+                    <div class="glass-panel">
+                        <table class="data-table" id="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Emp ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Role</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="assets-view" class="view">
+                    <div class="view-header">
+                        <h2>IT Assets (Hardware)</h2>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary" onclick="window.app.openModal('asset-types-modal')"><i
+                                    class="fas fa-list"></i> Manage Types</button>
+                            <button class="btn btn-primary" onclick="window.app.openModal('asset-modal')"><i
+                                    class="fas fa-plus"></i> Add Asset</button>
+                        </div>
+                    </div>
+                    <div class="search-filter-bar" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div style="position: relative; flex: 1; display:flex;">
+                            <input type="text" id="search-assets" class="search-input"
+                                placeholder="Search by tag or model..."
+                                style="flex: 1; padding: 10px; padding-right: 35px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-main);">
+                            <button id="clear-search-assets"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-muted); cursor: pointer;"><i
+                                    class="fas fa-times"></i></button>
+                        </div>
+                        <select id="filter-assets-type" class="filter-select"
+                            style="padding: 10px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-main); width: 180px;">
+                            <option value="">All Types</option>
+                        </select>
+                        <select id="filter-assets-status" class="filter-select"
+                            style="padding: 10px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-main); width: 150px;">
+                            <option value="">All Statuses</option>
+                            <option value="Available">Available</option>
+                            <option value="Assigned">Assigned</option>
+                        </select>
+                    </div>
+                    <div class="glass-panel">
+                        <table class="data-table" id="assets-table">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Asset Tag</th>
+                                    <th>Type</th>
+                                    <th>Model/Name</th>
+                                    <th>Status</th>
+                                    <th>Assigned To</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="consumables-view" class="view">
+                    <div class="view-header">
+                        <h2>Consumables & Stock</h2>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary"
+                                onclick="window.app.openModal('consumable-types-modal')"><i class="fas fa-list"></i>
+                                Manage Types</button>
+                            <button class="btn btn-primary" onclick="window.app.openModal('consumable-modal')"><i
+                                    class="fas fa-plus"></i> Add Consumable Item</button>
+                        </div>
+                    </div>
+                    <div class="search-filter-bar" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div style="position: relative; flex: 1; display:flex;">
+                            <input type="text" id="search-consumables" class="search-input"
+                                placeholder="Search consumables by name..."
+                                style="flex: 1; padding: 10px; padding-right: 35px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-main);">
+                            <button id="clear-search-consumables"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-muted); cursor: pointer;"><i
+                                    class="fas fa-times"></i></button>
+                        </div>
+                        <select id="filter-consumables-type" class="filter-select"
+                            style="padding: 10px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-main); width: 200px;">
+                            <option value="">All Types</option>
+                        </select>
+                    </div>
+                    <div class="glass-panel">
+                        <table class="data-table" id="consumables-table">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Item Name</th>
+                                    <th>Type</th>
+                                    <th>Current Stock</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="reports-view" class="view">
+                    <div class="view-header">
+                        <h2>System Reports</h2>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary" onclick="window.print()"><i class="fas fa-print"></i>
+                                Print Report</button>
+                        </div>
+                    </div>
+
+                    <div class="report-tabs"
+                        style="margin-bottom: 16px; display: flex; gap: 8px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; flex-wrap: wrap;">
+                        <button class="btn btn-sm btn-secondary active-tab"
+                            onclick="window.app.switchReportTab('report-history')">Full History</button>
+                        <button class="btn btn-sm btn-secondary"
+                            onclick="window.app.switchReportTab('report-assets-list')">Assets List</button>
+                        <button class="btn btn-sm btn-secondary"
+                            onclick="window.app.switchReportTab('report-scrapped-assets')">Scrapped Assets</button>
+                        <button class="btn btn-sm btn-secondary"
+                            onclick="window.app.switchReportTab('report-custodians')">Custodians</button>
+                        <button class="btn btn-sm btn-secondary"
+                            onclick="window.app.switchReportTab('report-toners')">Toner Consumers</button>
+                        <button class="btn btn-sm btn-secondary"
+                            onclick="window.app.switchReportTab('report-emails')">Email Logs</button>
+                        <button class="btn btn-sm btn-secondary" id="tab-login-logs"
+                            onclick="window.app.switchReportTab('report-login-logs')">Login Logs</button>
+                        <button class="btn btn-sm btn-secondary"
+                            onclick="window.app.switchReportTab('report-inventory-audits')">Inventory Audits</button>
+                    </div>
+
+                    <div id="report-history" class="glass-panel report-container report-content-tab active">
+                        <h3>Full Assignment History</h3>
+                        <table class="data-table" id="reports-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                    <th>Item</th>
+                                    <th>User</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div id="report-assets-list" class="glass-panel report-container report-content-tab"
+                        style="display:none;">
+                        <h3>All IT Assets</h3>
+                        <table class="data-table" id="report-assets-table">
+                            <thead>
+                                <tr>
+                                    <th>Tag</th>
+                                    <th>Type</th>
+                                    <th>Model</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div id="report-scrapped-assets" class="glass-panel report-container report-content-tab"
+                        style="display:none;">
+                        <h3>Scrapped Assets History</h3>
+                        <div class="search-filter-bar" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                            <select id="filter-scrap-year" class="filter-select"
+                                style="padding: 10px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-main); width: 200px;">
+                                <option value="">All Years</option>
+                            </select>
+                        </div>
+                        <table class="data-table" id="report-scrapped-table">
+                            <thead>
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Date</th>
+                                    <th>Tag</th>
+                                    <th>Type</th>
+                                    <th>Model</th>
+                                    <th>Reason for Scrap</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div id="report-custodians" class="glass-panel report-container report-content-tab"
+                        style="display:none;">
+                        <h3>Asset Custodians List</h3>
+                        <table class="data-table" id="report-custodians-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee / Custodian</th>
+                                    <th>Dept</th>
+                                    <th>Assigned Hardware</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div id="report-toners" class="glass-panel report-container report-content-tab"
+                        style="display:none;">
+                        <h3>Toner & Consumable Consumers</h3>
+                        <table class="data-table" id="report-toners-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Employee</th>
+                                    <th>Item Consumed</th>
+                                    <th>Qty</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div id="report-emails" class="glass-panel report-container report-content-tab"
+                        style="display:none;">
+                        <h3>Email Delivery Logs</h3>
+                        <table class="data-table" id="report-emails-table">
+                            <thead>
+                                <tr>
+                                    <th>Date / Time</th>
+                                    <th>To Address</th>
+                                    <th>Subject</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div id="report-login-logs" class="glass-panel report-container report-content-tab"
+                        style="display:none;">
+                        <h3>User Access & Login Logs</h3>
+                        <table class="data-table" id="report-login-logs-table">
+                            <thead>
+                                <tr>
+                                    <th>Date / Time</th>
+                                    <th>User ID</th>
+                                    <th>Name / Email</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div id="report-inventory-audits" class="glass-panel report-container report-content-tab"
+                        style="display: none;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h3>Annual Inventory Checks</h3>
+                            <button class="btn btn-primary btn-sm" onclick="window.app.openModal('new-audit-modal')">
+                                <i class="fas fa-play"></i> Start New Audit
+                            </button>
+                        </div>
+                        <table class="data-table" id="inventory-audits-table">
+                            <thead>
+                                <tr>
+                                    <th>Date Started</th>
+                                    <th>Audit Name</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="settings-view" class="view">
+                    <div class="view-header">
+                        <h2>System Settings</h2>
+                    </div>
+                    <div class="glass-panel" style="padding: 24px; max-width: 600px;">
+                        <form id="settings-form">
+                            <h3>Organization Details</h3>
+                            <div class="form-group">
+                                <label>Organization Name</label>
+                                <input type="text" id="setting-org-name" placeholder="AssetFlow">
+                            </div>
+                            <div class="form-group">
+                                <label>Organization Logo (Appears here & in emails)</label>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                                    <img id="setting-org-logo-preview" src=""
+                                        style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; display: none; border: 1px solid var(--glass-border);">
+                                    <label for="setting-org-logo-upload" class="btn btn-sm btn-secondary"
+                                        style="cursor: pointer;">
+                                        <i class="fas fa-camera"></i> Upload Logo
+                                    </label>
+                                    <input type="file" id="setting-org-logo-upload" accept="image/*"
+                                        style="display: none;">
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 15px; margin-top: 15px;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Logo Width (e.g. 40px, 100%)</label>
+                                    <input type="text" id="setting-logo-width" placeholder="40px" value="40px">
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Logo Height (e.g. 40px, auto)</label>
+                                    <input type="text" id="setting-logo-height" placeholder="auto" value="auto">
+                                </div>
+                            </div>
+                            <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 24px 0;">
+
+                            <h3>UI & Theme Adjustments</h3>
+                            <div class="form-group">
+                                <label>Interface Theme</label>
+                                <select id="setting-theme">
+                                    <option value="solid-dark">Solid Dark (Default)</option>
+                                    <option value="glass-dark">Translucent Glass</option>
+                                    <option value="light">Light Mode</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>System Font Family</label>
+                                <select id="setting-font">
+                                    <option value="'Inter', sans-serif">Inter (Default Modern)</option>
+                                    <option value="'Roboto', sans-serif">Roboto</option>
+                                    <option value="'Outfit', sans-serif">Outfit</option>
+                                    <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI</option>
+                                </select>
+                            </div>
+                            <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 24px 0;">
+
+                            <h3>Email Notifications (Webhook / API)</h3>
+                            <div
+                                style="background: rgba(var(--primary-rgb, 79, 70, 229), 0.1); border-left: 3px solid var(--primary); padding: 12px; margin-bottom: 16px; font-size: 13px; color: var(--text-main); border-radius: 4px;">
+                                <strong>Instructions:</strong> Configure an API endpoint (e.g. Zapier Webhook or
+                                Make.com) to send email notifications. The system will POST a JSON payload to this URL.
+                            </div>
+                            <div class="form-group">
+                                <label>Public Portal URL (Base Address for Email Links)</label>
+                                <input type="url" id="setting-public-url"
+                                    placeholder="https://my-domain.com/asset-management">
+                            </div>
+                            <div class="form-group">
+                                <label>Webhook URL (POST Destination)</label>
+                                <input type="url" id="setting-webhook-url"
+                                    placeholder="https://hook.zapier.com/... or your API" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Authorization Header (Optional Token)</label>
+                                <input type="text" id="setting-webhook-auth" placeholder="Bearer your-token-here">
+                            </div>
+
+                            <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 24px 0;">
+
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h3>Data Storage Configuration</h3>
+                                <button type="button" class="btn btn-sm btn-secondary"
+                                    onclick="window.app.openModal('integration-guide-modal')"><i
+                                        class="fas fa-book"></i> Read Integration Guide</button>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label>Storage Mode</label>
+                                <select id="setting-storage-mode" onchange="window.app.toggleStorageUI()">
+                                    <option value="local">Local Output / Browser Cache</option>
+                                    <option value="cloud">Cloud Sync (Supabase)</option>
+                                </select>
+                            </div>
+
+                            <!-- LOCAL STORAGE BLOCK -->
+                            <div id="storage-local-block">
+                                <div
+                                    style="background: rgba(var(--primary-rgb, 79, 70, 229), 0.1); border-left: 3px solid var(--primary); padding: 12px; margin-bottom: 16px; font-size: 13px; color: var(--text-main); border-radius: 4px;">
+                                    <strong>Local Mode:</strong> Data is saved internally to your browser. You can
+                                    specify a reference folder path below for where you intend to keep offline backups.
+                                </div>
+                                <div class="form-group">
+                                    <label>Local Backup Folder Path</label>
+                                    <input type="text" id="setting-local-path"
+                                        placeholder="C:\Users\Admin\AssetBackups">
+                                </div>
+                            </div>
+
+                            <!-- CLOUD STORAGE BLOCK -->
+                            <div id="storage-cloud-block" style="display: none;">
+                                <div
+                                    style="background: rgba(var(--warning-rgb, 245, 158, 11), 0.1); border-left: 3px solid var(--warning); padding: 12px; margin-bottom: 16px; font-size: 13px; color: var(--text-main); border-radius: 4px;">
+                                    <strong>Cloud Mode:</strong> Enter your Supabase Project URL and Anon Public Key
+                                    below to sync your data to the cloud. This allows sharing the portal across devices.
+                                </div>
+                                <div class="form-group">
+                                    <label>Supabase URL</label>
+                                    <input type="url" id="setting-supabase-url" placeholder="https://xxxx.supabase.co">
+                                </div>
+                                <div class="form-group">
+                                    <label>Supabase Anon Key</label>
+                                    <input type="text" id="setting-supabase-key" placeholder="eyJhbGciOiJIUzI1...">
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                <button type="submit" class="btn btn-primary">Save Settings</button>
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="window.app.testEmailSettings()"><i class="fas fa-paper-plane"></i> Test
+                                    Settings</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="department-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3 id="department-modal-title">Add Department</h3>
+            <form id="department-form">
+                <div class="form-group">
+                    <label>Department Name</label>
+                    <input type="text" id="dept-name" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.app.closeModal('department-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="user-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3 id="user-modal-title">Add User</h3>
+            <form id="user-form">
+                <input type="hidden" id="edit-user-id">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img id="user-image-preview" src="" alt="Preview"
+                        style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--glass-border); display: none; margin: 0 auto 10px auto;">
+                    <label for="user-image-upload" class="btn btn-sm btn-secondary"
+                        style="cursor: pointer; display: inline-block;">
+                        <i class="fas fa-camera"></i> Choose Image
+                    </label>
+                    <input type="file" id="user-image-upload" accept="image/*" style="display: none;">
+                </div>
+                <div class="form-group">
+                    <label>Employee ID No.</label>
+                    <input type="text" id="user-emp-id" required>
+                </div>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="user-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="user-email" required>
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <select id="user-department" required>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group admin-only-field">
+                    <label>System Role</label>
+                    <select id="user-role" required>
+                        <option value="User">Standard User</option>
+                        <option value="Admin">Administrator</option>
+                    </select>
+                </div>
+                <div class="form-group admin-only-field" id="user-password-group">
+                    <label>Set Password (Leave blank to keep current)</label>
+                    <input type="password" id="user-password">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.app.closeModal('user-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="asset-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3 id="asset-modal-title">Add IT Asset</h3>
+            <form id="asset-form">
+                <input type="hidden" id="edit-asset-id">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img id="asset-image-preview" src="" alt="Preview"
+                        style="width: 100px; height: 100px; border-radius: 8px; object-fit: cover; border: 2px solid var(--glass-border); display: none; margin: 0 auto 10px auto;">
+                    <label for="asset-image-upload" class="btn btn-sm btn-secondary"
+                        style="cursor: pointer; display: inline-block;">
+                        <i class="fas fa-camera"></i> Record Photo
+                    </label>
+                    <input type="file" id="asset-image-upload" accept="image/*" style="display: none;">
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="asset-type" required>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Asset Tag / Serial No</label>
+                    <input type="text" id="asset-tag" required>
+                </div>
+                <div class="form-group">
+                    <label>Model/Name</label>
+                    <input type="text" id="asset-model" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.app.closeModal('asset-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="consumable-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3 id="consumable-modal-title">Add Consumable Stock</h3>
+            <form id="consumable-form">
+                <input type="hidden" id="edit-consumable-id">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img id="consumable-image-preview" src="" alt="Preview"
+                        style="width: 100px; height: 100px; border-radius: 8px; object-fit: cover; border: 2px solid var(--glass-border); display: none; margin: 0 auto 10px auto;">
+                    <label for="consumable-image-upload" class="btn btn-sm btn-secondary"
+                        style="cursor: pointer; display: inline-block;">
+                        <i class="fas fa-camera"></i> Stock Image
+                    </label>
+                    <input type="file" id="consumable-image-upload" accept="image/*" style="display: none;">
+                </div>
+                <div class="form-group">
+                    <label>Name (e.g., HP 305 Black Ink)</label>
+                    <input type="text" id="consumable-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="consumable-type" required>
+                        <option value="Toner">Toner</option>
+                        <option value="Cartridge">Cartridge</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group" id="consumable-qty-group">
+                    <label>Initial Quantity</label>
+                    <input type="number" id="consumable-qty" min="0" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.app.closeModal('consumable-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="assign-asset-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3>Assign Hardware to User</h3>
+            <form id="assign-asset-form">
+                <input type="hidden" id="assign-asset-id">
+                <p>Asset: <strong id="assign-asset-display"></strong></p>
+                <div class="form-group">
+                    <label>Select User</label>
+                    <select id="assign-user-id" required>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.app.closeModal('assign-asset-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Assign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="issue-consumable-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3>Issue Consumable to User</h3>
+            <form id="issue-consumable-form">
+                <input type="hidden" id="issue-consumable-id">
+                <p>Item: <strong id="issue-consumable-display"></strong></p>
+                <div class="form-group">
+                    <label>Select User</label>
+                    <select id="issue-user-id" required>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quantity to Issue</label>
+                    <input type="number" id="issue-qty" min="1" value="1" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.app.closeModal('issue-consumable-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Issue & Reduce Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="add-stock-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3>Add Stock</h3>
+            <form id="add-stock-form">
+                <input type="hidden" id="add-stock-id">
+                <p>Item: <strong id="add-stock-display"></strong></p>
+                <div class="form-group">
+                    <label>Quantity to Add</label>
+                    <input type="number" id="add-stock-qty" min="1" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.app.closeModal('add-stock-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mange Asset Types Modal -->
+    <div id="asset-types-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3>Manage Asset Types</h3>
+            <div style="margin-bottom: 20px;">
+                <ul id="asset-types-list"
+                    style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
+                    <!-- Populated explicitly via app.js -->
+                </ul>
+            </div>
+            <form id="asset-types-form" style="display:flex; gap:8px;">
+                <input type="text" id="new-asset-type" placeholder="New Type Name" required
+                    style="flex:1; padding: 8px; border-radius:4px; border:1px solid var(--glass-border); background:rgba(0,0,0,0.3); color:white;">
+                <button type="submit" class="btn btn-primary">Add</button>
+            </form>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary"
+                    onclick="window.app.closeModal('asset-types-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mange Consumable Types Modal -->
+    <div id="consumable-types-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3>Manage Consumable Types</h3>
+            <div style="margin-bottom: 20px;">
+                <ul id="consumable-types-list"
+                    style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
+                    <!-- Populated explicitly via app.js -->
+                </ul>
+            </div>
+            <form id="consumable-types-form" style="display:flex; gap:8px;">
+                <input type="text" id="new-consumable-type" placeholder="New Type Name" required
+                    style="flex:1; padding: 8px; border-radius:4px; border:1px solid var(--glass-border); background:rgba(0,0,0,0.3); color:white;">
+                <button type="submit" class="btn btn-primary">Add</button>
+            </form>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary"
+                    onclick="window.app.closeModal('consumable-types-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Audit Responses moved to dedicated view audit-report.html -->
+
+    <!-- Generic Confirm Modal -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 400px; text-align: center;">
+            <i class="fas fa-exclamation-triangle"
+                style="font-size: 48px; color: var(--warning); margin-bottom: 16px;"></i>
+            <h3 id="confirm-modal-title">Are you sure?</h3>
+            <p id="confirm-modal-message" style="margin-bottom: 24px; color: var(--text-muted);"></p>
+            <div class="modal-actions" style="justify-content: center;">
+                <button type="button" class="btn btn-secondary"
+                    onclick="window.app.closeModal('confirm-modal')">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-modal-yes">Yes, Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scrap Asset Modal -->
+    <div id="scrap-asset-modal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 400px;">
+            <h3 style="margin-top: 0; color: var(--warning);"><i class="fas fa-hammer"></i> Scrap Asset</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">This asset will be permanently
+                removed from circulation and logged in the Scrapped Assets report.</p>
+            <form id="scrap-asset-form">
+                <input type="hidden" id="scrap-asset-id">
+                <div class="form-group">
+                    <label>Asset to Scrap</label>
+                    <div id="scrap-asset-display"
+                        style="padding: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; font-weight: bold; color: var(--text-main);">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Reason for Scrapping</label>
+                    <textarea id="scrap-reason" rows="3" required
+                        placeholder="e.g. Beyond economical repair, water damage..."
+                        style="width: 100%; border-radius: 4px; padding: 8px; background: rgba(0,0,0,0.1); color: var(--text-main); border: 1px solid var(--glass-border);"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Year Scrapped</label>
+                    <input type="number" id="scrap-year" required
+                        style="width: 100%; border-radius: 4px; padding: 8px; background: rgba(0,0,0,0.1); color: var(--text-main); border: 1px solid var(--glass-border);">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.app.closeModal('scrap-asset-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Confirm Scrap</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Inventory Audit Modal -->
+    <div id="new-audit-modal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 400px;">
+            <h3>Start Inventory Audit</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">
+                This will create a new audit record and allow you to email all personnel with assigned assets.
+            </p>
+            <form id="new-audit-form">
+                <div class="form-group">
+                    <label>Audit Name (e.g. 2026 Annual Review)</label>
+                    <input type="text" id="audit-name" required placeholder="2026 Annual Audit">
+                </div>
+                <div class="modal-actions" style="margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.app.closeModal('new-audit-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Start Audit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-password-modal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 400px;">
+            <h3>Reset Password</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">
+                Enter your email address and we'll send you a temporary password.
+            </p>
+            <form id="forgot-password-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="forgot-password-email" required placeholder="your.email@example.com">
+                </div>
+                <div class="modal-actions" style="margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.app.closeModal('forgot-password-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Email</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Integration Guide Modal -->
+    <div id="integration-guide-modal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <h3>System Integrations Guide</h3>
+            <div style="margin-top: 20px;">
+                <h4><i class="fas fa-envelope" style="color: var(--primary);"></i> 1. Email Notifications (Webhook)</h4>
+                <p style="color: var(--text-muted); font-size: 14px; margin-top: 10px;">
+                    To send automatic emails (like inventory checks or password resets), you need to set up a webhook
+                    receiving endpoint, such as on Zapier or Make.com.
+                </p>
+                <ol style="color: var(--text-muted); font-size: 14px; margin-top: 10px; padding-left: 20px;">
+                    <li>Create a new Scenario/Zap.</li>
+                    <li>Choose "Webhooks" as the trigger and select "Catch Hook".</li>
+                    <li>Copy the URL provided and paste it into the <strong>Webhook URL</strong> field in the settings.
+                    </li>
+                    <li>Add an action step like "Gmail - Send an Email" or "Office 365 - Send an Email".</li>
+                    <li>Map the incoming webhook fields to the email action (To, Subject, HTML Body).</li>
+                </ol>
+
+                <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 24px 0;">
+
+                <h4><i class="fas fa-database" style="color: var(--primary);"></i> 2. Cloud Synchronization (Supabase)
+                </h4>
+                <p style="color: var(--text-muted); font-size: 14px; margin-top: 10px;">
+                    Supabase allows your asset data to be stored securely in the cloud, instead of permanently bound to
+                    this computer. This ensures that when you email Custodian Portal Links, they actually function
+                    correctly off-network.
+                </p>
+                <ol style="color: var(--text-muted); font-size: 14px; margin-top: 10px; padding-left: 20px;">
+                    <li>Sign up for free at <a href="https://supabase.com" target="_blank"
+                            style="color: var(--primary);">Supabase.com</a>.</li>
+                    <li>Create a New Project. Wait for the database to provision.</li>
+                    <li>Go to the <strong>Settings (gear icon) -> API</strong> section.</li>
+                    <li>Copy the <strong>Project URL</strong> and <strong>Project API Keys (anon public)</strong>.</li>
+                    <li>Paste these values into the Settings tab of this application.</li>
+                    <li>The system will automatically create an `app_state` table and sync your data securely.</li>
+                </ol>
+            </div>
+            <div class="modal-actions" style="margin-top: 24px;">
+                <button type="button" class="btn btn-secondary"
+                    onclick="window.app.closeModal('integration-guide-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Test Modal -->
+    <div id="email-test-modal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 400px;">
+            <h3>Test Email Settings</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Make sure to Save Settings first.
+            </p>
+            <div class="form-group">
+                <label>Send Test Email To:</label>
+                <input type="email" id="test-email-address" placeholder="youremail@example.com" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary"
+                    onclick="window.app.closeModal('email-test-modal')">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="window.app.sendTestEmail()">Send Test</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Context -->
+    <div id="toast-container"
+        style="position:fixed; bottom:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px;">
+    </div>
+
+    <!-- Chart.js for Dashboard Metrics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Scripts -->
+    <script src="dataStore.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

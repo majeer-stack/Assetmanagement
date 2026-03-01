@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annual Inventory Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 40px;
+            background: #fff;
+            color: #000;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .branding h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #111;
+        }
+
+        .branding h2 {
+            margin: 4px 0 0 0;
+            font-size: 16px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .meta {
+            text-align: right;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .meta p {
+            margin: 4px 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-confirmed {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .status-declined {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .print-btn-container {
+            margin-bottom: 20px;
+        }
+
+        .btn-print {
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-print:hover {
+            background: #2563eb;
+        }
+
+        @media print {
+            .print-btn-container {
+                display: none !important;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            @page {
+                size: A4 landscape;
+                /* Because there are 7 columns, landscape is often better, or portrait with tight padding. We'll allow it to default. */
+                margin: 15mm;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading" style="text-align: center; margin-top: 100px; font-size: 18px; color: #666;">
+        <i class="fas fa-spinner fa-spin"></i> Fetching Audit Data from Cloud...
+    </div>
+
+    <div id="report-content" style="display: none;">
+        <div class="print-btn-container">
+            <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Print Report</button>
+            <button class="btn-print" style="background:#6b7280; margin-left: 10px;" onclick="window.close()"><i
+                    class="fas fa-times"></i> Close Window</button>
+        </div>
+
+        <div class="header">
+            <div class="branding">
+                <i class="fas fa-network-wired" style="font-size: 24px; color: #3b82f6; margin-bottom: 8px;"></i>
+                <h1 id="report-org-name">AssetFlow</h1>
+                <h2>Annual Inventory Audit Report</h2>
+            </div>
+            <div class="meta">
+                <p><strong>Audit Name:</strong> <span id="report-audit-name"></span></p>
+                <p><strong>Status:</strong> <span id="report-audit-status"></span></p>
+                <p><strong>Date Generated:</strong> <span id="report-date"></span></p>
+            </div>
+        </div>
+
+        <table class="data-table" id="report-table">
+            <thead>
+                <tr>
+                    <th style="width: 12%;">Time</th>
+                    <th style="width: 15%;">Custodian Name</th>
+                    <th style="width: 15%;">Email</th>
+                    <th style="width: 20%;">Asset Confirmed</th>
+                    <th style="width: 10%;">Status</th>
+                    <th style="width: 13%;">Condition</th>
+                    <th style="width: 15%;">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Populated via JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="dataStore.js"></script>
+    <script src="audit-report.js"></script>
+</body>
+
+</html>

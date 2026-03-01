@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 32px;
+            padding: 24px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-avatar i {
+            font-size: 40px;
+            color: var(--text-muted);
+        }
+
+        .profile-info h1 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+        }
+
+        .profile-info p {
+            margin: 0 0 4px 0;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .profile-info p strong {
+            color: var(--text-main);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .dashboard-panel {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .dashboard-panel h3 {
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 32px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border: 1px solid transparent;
+            transition: var(--transition);
+        }
+
+        .list-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--glass-border);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container"
+        style="display: block; overflow-y: auto; padding: 24px; max-width: 1200px; margin: 0 auto; height: 100vh;">
+
+        <div id="loading" style="text-align: center; margin-top: 100px; font-size: 18px; color: var(--text-muted);">
+            <i class="fas fa-spinner fa-spin"></i> Loading User Profile...
+        </div>
+
+        <div id="profile-content" style="display: none; animation: fadeIn 0.4s ease forwards;">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <button class="btn btn-secondary" onclick="window.close()"><i class="fas fa-arrow-left"></i> Back to
+                    Admin</button>
+                <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Print
+                    Dashboard</button>
+            </div>
+
+            <div class="glass-panel profile-header">
+                <div id="user-avatar-container" class="profile-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-info">
+                    <h1 id="user-name-display">Loading...</h1>
+                    <p><i class="fas fa-id-badge"></i> ID: <strong id="user-emp-id">-</strong></p>
+                    <p><i class="fas fa-envelope"></i> Email: <strong id="user-email">-</strong></p>
+                    <p><i class="fas fa-building"></i> Department: <strong id="user-department">-</strong></p>
+                    <p><i class="fas fa-shield-alt"></i> Access Role: <span id="user-role"
+                            class="badge badge-assigned">User</span></p>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Currently Assigned Assets -->
+                <div class="glass-panel dashboard-panel">
+                    <h3><i class="fas fa-laptop" style="color: var(--primary);"></i> Currently Assigned Devices</h3>
+                    <div id="current-assets-container">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Consumable History -->
+                <div class="glass-panel dashboard-panel">
+                    <h3><i class="fas fa-tint" style="color: var(--secondary);"></i> Consumables Drawn</h3>
+                    <div id="consumables-container">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Tracking History -->
+            <div class="glass-panel dashboard-panel" style="grid-column: 1 / -1;">
+                <h3><i class="fas fa-history" style="color: var(--warning);"></i> Complete Assignment / Return History
+                </h3>
+                <table class="data-table" id="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Action Type</th>
+                            <th>Item Details</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="dataStore.js"></script>
+    <script src="user-profile.js"></script>
+</body>
+
+</html>
