@@ -36,6 +36,14 @@ class DataStore {
         };
     }
 
+    // Helper to get absolute API URL
+    getApiUrl(endpoint) {
+        const settings = this.data.settings || {};
+        let base = settings.publicUrl ? settings.publicUrl.trim().replace(/\/$/, '') : '';
+        // If there is no public URL, assume we are hosting this directory and use relative path
+        return base ? `${base}${endpoint}` : endpoint;
+    }
+
     // New Async Initialization
     async init() {
         // Determine environment: are we running via Node server or local file system?
@@ -43,7 +51,8 @@ class DataStore {
 
         if (isServerEnv && (!this.storageMode || this.storageMode !== 'cloud')) {
             try {
-                const response = await fetch('/api/data');
+                const apiUrl = this.getApiUrl('/api/data');
+                const response = await fetch(apiUrl);
                 if (response.ok) {
                     const serverData = await response.json();
                     if (serverData && Object.keys(serverData).length > 0) {
@@ -179,7 +188,8 @@ class DataStore {
         const isServerEnv = window.location.protocol.startsWith('http');
         if (isServerEnv && (!this.storageMode || this.storageMode !== 'cloud')) {
             try {
-                await fetch('/api/data', {
+                const apiUrl = this.getApiUrl('/api/data');
+                await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(this.data)
